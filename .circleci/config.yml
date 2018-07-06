@@ -8,6 +8,7 @@ jobs:
       - checkout
       - run: dep ensure -vendor-only
       - run: ls 
-      - run: go test ./...
+      - run: pwd
+      - run: go test -v ./...
       - run: go build -o vks
 
