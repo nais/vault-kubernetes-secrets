@@ -6,6 +6,9 @@ jobs:
     working_directory: /go/src/github.com/nais/vault-kubernetes-secrets
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 17.05.0-ce
       - run: dep ensure -vendor-only
-      - run: make test build
+      - run: make test 
+      - run: make docker-build
 
