@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.10.3
+    working_directory: /go/src/github.com/nais/kubernetes-vault-secrets
     steps:
       - checkout
       - run: dep ensure -vendor-only
