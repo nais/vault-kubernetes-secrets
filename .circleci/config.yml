@@ -9,6 +9,6 @@ jobs:
       - setup_remote_docker:
           version: 17.05.0-ce
       - run: dep ensure -vendor-only
-      - run: make test 
+      - run: make test build
       - run: make docker-build
 
