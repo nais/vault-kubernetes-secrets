@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	envSecretsDestPath = "VS_SECRET_DEST_PATH"
-	envJwtFile         = "VS_SERVICE_ACCOUNT_TOKEN"
+	envSecretsDestPath = "VKS_SECRET_DEST_PATH"
+	envJwtFile         = "VKS_SERVICE_ACCOUNT_TOKEN"
 )
 
 func init() {

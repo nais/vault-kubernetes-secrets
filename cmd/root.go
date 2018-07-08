@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	envVaultAddr = "VS_VAULT_ADDR"
-	envAuthPath  = "VS_AUTH_PATH"
-	envKvPath    = "VS_KV_PATH"
-	envVaultRole = "VS_VAULT_ROLE"
+	envVaultAddr = "VKS_VAULT_ADDR"
+	envAuthPath  = "VKS_AUTH_PATH"
+	envKvPath    = "VKS_KV_PATH"
+	envVaultRole = "VKS_VAULT_ROLE"
 )
 
 func init() {
