@@ -13,7 +13,7 @@ clean:
 test:
 	go test ./...
 build:
-	go build -o vks
+	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o vks
 
 docker-build:
 	docker image build -t ${NAME}:$(CIRCLE_BUILD_NUM) -t ${LATEST} -f Dockerfile .
