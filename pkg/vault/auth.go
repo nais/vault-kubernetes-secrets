@@ -3,7 +3,7 @@ package vault
 import "fmt"
 
 const (
-	authTpl = "/sys/auth/%s/login"
+	authTpl = "/auth/%s/login"
 )
 
 type Auth interface {
