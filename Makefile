@@ -19,4 +19,4 @@ docker-build:
 	docker image build -t ${NAME}:$(CIRCLE_BUILD_NUM) -t ${LATEST} -f Dockerfile .
 
 push-dockerhub:
-	docker image push ${NAME}:$(CIRCLE_BUILD_NUM) ${LATEST}
+	docker image push ${NAME}:$(CIRCLE_BUILD_NUM) 
