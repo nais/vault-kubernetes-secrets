@@ -3,7 +3,7 @@ package vault
 import "fmt"
 
 const (
-	root = "/sys/auth/"
+	authTpl = "/sys/auth/%s/login"
 )
 
 type Auth interface {
@@ -12,7 +12,7 @@ type Auth interface {
 
 func (c *client) LoginK8s(role, jwt, path string) (string, error) {
 	secret, err := c.vaultClient.Logical().Write(
-		fmt.Sprint(root, path),
+		fmt.Sprintf(authTpl, path),
 		map[string]interface{}{
 			"role": role,
 			"jwt":  jwt,

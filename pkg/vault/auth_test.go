@@ -33,7 +33,7 @@ func TestAuth(t *testing.T) {
 
 	t.Run("Calling auth backend should return a token", func(t *testing.T) {
 		gock.New("http://vault.foo.bar").
-			Put("/v1/sys/auth/kubernetes").
+			Put("/v1/sys/auth/kubernetes/login").
 			Reply(200).
 			JSON(sampleResponse)
 
