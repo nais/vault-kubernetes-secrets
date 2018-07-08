@@ -11,4 +11,7 @@ jobs:
       - run: dep ensure -vendor-only
       - run: make test build
       - run: make docker-build
+      - run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PWD
+          make push-dockerhub
 

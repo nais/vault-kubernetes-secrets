@@ -3,10 +3,15 @@ SHELL   := bash
 NAME    := navikt/vks
 LATEST  := ${NAME}:latest
 
-dockerhub-release:test docker-build push-dockerhub
+push-dockerhub: docker-build
+docker-build: build
+build: test
+
+clean:
+	rm vks
 
 test:
-	go test ./...	
+	go test ./...
 build:
 	go build -o vks
 
