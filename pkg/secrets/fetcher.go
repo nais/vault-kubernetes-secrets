@@ -3,8 +3,8 @@ package secrets
 import (
 	"github.com/spf13/viper"
 	"github.com/nais/vault-kubernetes-secrets/pkg/vault"
-	"io/ioutil"
 	"fmt"
+	"github.com/spf13/afero"
 )
 
 const (
@@ -20,11 +20,12 @@ func init() {
 }
 
 func New(options vault.ClientOptions) SecretFetcher {
+	fs := afero.NewOsFs()
 	return secretFetcher{
 		auth:         vault.NewAuthClient(options),
 		kv:           vault.NewKVClient(options),
-		jwtRetriever: jwtFromFile(viper.GetString(envJwtFile)),
-		secretWriter: writeToFile(viper.GetString(envSecretsDestPath)),
+		jwtRetriever: jwtFromFile(fs, viper.GetString(envJwtFile)),
+		secretWriter: writeToFile(fs, viper.GetString(envSecretsDestPath)),
 	}
 }
 
@@ -62,9 +63,9 @@ func (s secretFetcher) FetchSecrets(role, authPath, kvPath string) (err error, s
 	return s.secretWriter(secrets), len(secrets)
 }
 
-func jwtFromFile(jwtFile string) func() (token string, err error) {
+func jwtFromFile(fs afero.Fs, jwtFile string) func() (token string, err error) {
 	return func() (token string, err error) {
-		if b, e := ioutil.ReadFile(jwtFile); e != nil {
+		if b, e := afero.ReadFile(fs, jwtFile); e != nil {
 			return "", e
 		} else {
 			return string(b), nil
@@ -72,11 +73,11 @@ func jwtFromFile(jwtFile string) func() (token string, err error) {
 	}
 }
 
-func writeToFile(destDir string) func(secrets map[string]string) error {
+func writeToFile(fs afero.Fs, destDir string) func(secrets map[string]string) error {
 	return func(secrets map[string]string) error {
 		for k, v := range secrets {
 			dest := destDir + "/" + k
-			if err := ioutil.WriteFile(dest, []byte(v), 0644); err != nil {
+			if err := afero.WriteFile(fs, dest, []byte(v), 0644); err != nil {
 				return fmt.Errorf("Fail to write secret %s to  %s. Error: ", k, err.Error())
 			}
 		}

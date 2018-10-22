@@ -4,41 +4,47 @@ import (
 	"testing"
 	"github.com/nais/vault-kubernetes-secrets/test/mocks"
 	"github.com/nbio/st"
-	"reflect"
+	"github.com/spf13/afero"
 )
 
+var fs = afero.NewMemMapFs()
+
+func newFetchSecretsStub(expectedSecrets map[string]string) SecretFetcher {
+	auth := new(mocks.Auth)
+	auth.On("LoginK8s", "role", "token", "kubernetes").Return("accessToken", nil)
+
+	kv := new(mocks.KV)
+	kv.On("Get", "kv", "accessToken").Return(expectedSecrets, nil)
+
+	afero.WriteFile(fs, "/token/jwt", []byte("token"), 0644)
+	return secretFetcher{
+		secretWriter: writeToFile(fs, "/secrets"),
+		jwtRetriever: jwtFromFile(fs, "/token/jwt"),
+		auth:         auth,
+		kv:           kv,
+	}
+}
 func TestFetchSecrets(t *testing.T) {
+	tests := []struct {
+		testName string
+		secrets  map[string]string
+	}{
+		{"Happy day test", map[string]string{"k1": "v1", "k2": "v2"}},
+		{"Handle no secrets", map[string]string{}},
+	}
 
-	t.Run("Happy day test", func(t *testing.T) {
-		var actualSecrets map[string]string
-		expectedSecrets := map[string]string{"k1": "v1", "k2": "v2"}
-
-		auth := new(mocks.Auth)
-		auth.On("LoginK8s", "role", "token", "kubernetes").Return("accessToken", nil)
-
-		kv := new(mocks.KV)
-		kv.On("Get", "kv", "accessToken").Return(expectedSecrets, nil)
-
-		s := secretFetcher{
-			secretWriter: func(strings map[string]string) error {
-				actualSecrets = strings
-				return nil
-			},
-			jwtRetriever: func() (string, error) {
-				return "token", nil
-			},
-			auth: auth,
-			kv:   kv,
-		}
+	for _, test := range tests {
+		s := newFetchSecretsStub(test.secrets)
 
 		e, n := s.FetchSecrets("role", "kubernetes", "kv")
 
 		st.Assert(t, e, nil)
-		st.Assert(t, n, len(expectedSecrets))
-		st.Assert(t, reflect.DeepEqual(actualSecrets, expectedSecrets), true)
-		auth.AssertExpectations(t)
-		kv.AssertExpectations(t)
+		st.Assert(t, n, len(test.secrets))
+		for k, v := range test.secrets {
+			secret, e := afero.ReadFile(fs, "/secrets/"+k)
+			st.Assert(t, e, nil)
+			st.Assert(t, string(secret), v)
+		}
 
-	})
-
+	}
 }
