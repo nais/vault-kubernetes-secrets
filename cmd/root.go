@@ -44,8 +44,10 @@ var FetchCmd = &cobra.Command{
 			Logger: logger,
 		})
 		role, authMount, kvMount := viper.GetString(envVaultRole), viper.GetString(envAuthPath), viper.GetString(envKvPath)
-		if err := fetcher.FetchSecrets(role, authMount, kvMount); err != nil {
+		if err, secretsFetched := fetcher.FetchSecrets(role, authMount, kvMount); err != nil {
 			log.Fatalf("Unable to fetch secrets. error: %s", err.Error())
+		} else {
+			log.Printf("Fetched %d secret(s)", secretsFetched)
 		}
 
 	},

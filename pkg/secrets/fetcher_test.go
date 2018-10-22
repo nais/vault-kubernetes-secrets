@@ -31,9 +31,10 @@ func TestFetchSecrets(t *testing.T) {
 			kv:   kv,
 		}
 
-		e := s.FetchSecrets("role", "kubernetes", "kv")
+		e, n := s.FetchSecrets("role", "kubernetes", "kv")
 
 		st.Assert(t, e, nil)
+		st.Assert(t, n, len(expectedSecrets))
 		st.Assert(t, reflect.DeepEqual(actualSecrets, expectedSecrets), true)
 		auth.AssertExpectations(t)
 		kv.AssertExpectations(t)

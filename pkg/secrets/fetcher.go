@@ -29,7 +29,7 @@ func New(options vault.ClientOptions) SecretFetcher {
 }
 
 type SecretFetcher interface {
-	FetchSecrets(role, authPath, kvPath string) error
+	FetchSecrets(role, authPath, kvPath string) (err error, secretsFetched int)
 }
 
 type secretFetcher struct {
@@ -39,23 +39,27 @@ type secretFetcher struct {
 	secretWriter func(map[string]string) error
 }
 
-func (s secretFetcher) FetchSecrets(role, authPath, kvPath string) error {
+func (s secretFetcher) FetchSecrets(role, authPath, kvPath string) (err error, secretsFetched int) {
 	jwt, jwtError := s.jwtRetriever()
 	if jwtError != nil {
-		return jwtError
+		return jwtError, 0
 	}
 
 	accessToken, loginError := s.auth.LoginK8s(role, jwt, authPath)
 	if loginError != nil {
-		return loginError
+		return loginError, 0
 	}
 
 	secrets, fetchError := s.kv.Get(kvPath, accessToken)
 	if fetchError != nil {
-		return fetchError
+		return fetchError, 0
 	}
 
-	return s.secretWriter(secrets)
+	if len(secrets) == 0 {
+		return nil, 0
+	}
+
+	return s.secretWriter(secrets), len(secrets)
 }
 
 func jwtFromFile(jwtFile string) func() (token string, err error) {
