@@ -14,7 +14,12 @@ func (c *client) Get(path, token string) (map[string]string, error) {
 	if e != nil {
 		return nil, e
 	}
+
 	secrets := make(map[string]string)
+
+	if secret == nil {
+		return secrets, nil
+	}
 
 	for k, v := range secret.Data {
 		switch val := v.(type) {
