@@ -37,7 +37,7 @@ type secretFetcher struct {
 	auth         vault.Auth
 	kv           vault.KV
 	jwtRetriever func() (string, error)
-	secretWriter func(map[string]string) error
+	secretWriter func(string, map[string]string) error
 }
 
 func (s secretFetcher) FetchSecrets(role, authPath, kvPath string) (err error, secretsFetched int) {
@@ -60,7 +60,7 @@ func (s secretFetcher) FetchSecrets(role, authPath, kvPath string) (err error, s
 		return nil, 0
 	}
 
-	return s.secretWriter(secrets), len(secrets)
+	return s.secretWriter(accessToken, secrets), len(secrets)
 }
 
 func jwtFromFile(fs afero.Fs, jwtFile string) func() (token string, err error) {
@@ -73,11 +73,16 @@ func jwtFromFile(fs afero.Fs, jwtFile string) func() (token string, err error) {
 	}
 }
 
-func writeToFile(fs afero.Fs, destDir string) func(secrets map[string]string) error {
-	return func(secrets map[string]string) error {
+func writeToFile(fs afero.Fs, destDir string) func(token string, secrets map[string]string) error {
+	return func(token string, secrets map[string]string) error {
+		tokenDest := destDir + "/vault_token"
+		err := afero.WriteFile(fs, tokenDest, []byte(token), 0644)
+		if (err != nil) {
+			return fmt.Errorf("Failed to write vault token to %s. Error: %s", tokenDest, err.Error())
+		}
 		for k, v := range secrets {
 			dest := destDir + "/" + k
-			if err := afero.WriteFile(fs, dest, []byte(v), 0644); err != nil {
+			if err = afero.WriteFile(fs, dest, []byte(v), 0644); err != nil {
 				return fmt.Errorf("Fail to write secret %s to  %s. Error: ", k, err.Error())
 			}
 		}
