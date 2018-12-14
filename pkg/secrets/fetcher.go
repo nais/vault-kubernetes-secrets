@@ -56,10 +56,6 @@ func (s secretFetcher) FetchSecrets(role, authPath, kvPath string) (err error, s
 		return fetchError, 0
 	}
 
-	if len(secrets) == 0 {
-		return nil, 0
-	}
-
 	return s.secretWriter(accessToken, secrets), len(secrets)
 }
 
