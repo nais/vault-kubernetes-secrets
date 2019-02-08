@@ -14,8 +14,6 @@ const (
 
 func init() {
 	viper.BindEnv(envJwtFile)
-	viper.BindEnv(envSecretsDestPath)
-	viper.SetDefault(envSecretsDestPath, "/var/run/secrets/naisd.io/vault")
 	viper.SetDefault(envJwtFile, "/var/run/secrets/kubernetes.io/serviceaccount/token")
 }
 

@@ -4,7 +4,7 @@ NAME    := navikt/vks
 LATEST  := ${NAME}:latest
 
 push-dockerhub: docker-build
-docker-build: build
+docker-build: build-linux
 build: test
 
 clean:
@@ -13,6 +13,8 @@ clean:
 test:
 	go test ./...
 build:
+	CGO_ENABLED=0 go build -a -installsuffix cgo -o vks
+build-linux:
 	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o vks
 
 docker-build:
