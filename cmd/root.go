@@ -49,7 +49,7 @@ var FetchCmd = &cobra.Command{
 		if (viper.GetBool(envIsSidecar)) {
 			runner := renewer.New(
 				viper.GetString(envVaultAddr),
-				viper.GetString(envSecretsDestPath + "/vault_token"),
+				viper.GetString(envSecretsDestPath) + "/vault_token",
 			)
 			runner.Run()
 		} else {
