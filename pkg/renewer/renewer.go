@@ -9,10 +9,10 @@ import (
 )
 
 func suggestedRefreshTime(ttl float64) float64 {
-	if (ttl < 60) {
+	if (ttl < 600) {
 		return ttl / 2
 	} else {
-		return ttl - 30
+		return ttl - 300
 	}
 }
 

@@ -5,13 +5,13 @@ import (
 	"github.com/nbio/st"
 )
 
-func TestSuggestedRefreshTimeLessThanOneMinute(t *testing.T) {
+func TestSuggestedRefreshTimeLessThanTenMinutes(t *testing.T) {
 	st.Assert(t, suggestedRefreshTime(20.000), 10.000)
 	st.Assert(t, suggestedRefreshTime(50.000), 25.000)
 }
 
-func TestSuggestedRefreshTimeMoreThanOneMinute(t *testing.T) {
-	st.Assert(t, suggestedRefreshTime(60.000), 30.000)
-	st.Assert(t, suggestedRefreshTime(61.000), 31.000)
-	st.Assert(t, suggestedRefreshTime(90.000), 60.000)
+func TestSuggestedRefreshTimeMoreThanTenMinutse(t *testing.T) {
+	st.Assert(t, suggestedRefreshTime(600.000), 300.000)
+	st.Assert(t, suggestedRefreshTime(610.000), 310.000)
+	st.Assert(t, suggestedRefreshTime(900.000), 600.000)
 }
