@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    context: NAIS deployment
     docker:
       - image: circleci/golang:1.10.3
     working_directory: /go/src/github.com/nais/vault-kubernetes-secrets
