@@ -10,7 +10,7 @@ jobs:
           version: 17.05.0-ce
       - run: dep ensure -vendor-only
       - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PWD
+          docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
           make push-dockerhub
 
 
