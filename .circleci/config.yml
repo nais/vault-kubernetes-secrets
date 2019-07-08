@@ -10,6 +10,13 @@ jobs:
           version: 17.05.0-ce
       - run: dep ensure -vendor-only
       - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PWD
+          docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
           make push-dockerhub
 
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          context: NAIS deployment
