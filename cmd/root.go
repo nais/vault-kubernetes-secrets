@@ -1,21 +1,21 @@
 package cmd
 
 import (
+	"github.com/nais/vault-kubernetes-secrets/pkg/renewer"
+	"github.com/nais/vault-kubernetes-secrets/pkg/secrets"
+	"github.com/nais/vault-kubernetes-secrets/pkg/vault"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/nais/vault-kubernetes-secrets/pkg/secrets"
 	"log"
 	"os"
-	"github.com/nais/vault-kubernetes-secrets/pkg/vault"
-	"github.com/nais/vault-kubernetes-secrets/pkg/renewer"
 )
 
 const (
-	envVaultAddr = "VKS_VAULT_ADDR"
-	envAuthPath  = "VKS_AUTH_PATH"
-	envKvPath    = "VKS_KV_PATH"
-	envVaultRole = "VKS_VAULT_ROLE"
-	envIsSidecar = "VKS_IS_SIDECAR"
+	envVaultAddr       = "VKS_VAULT_ADDR"
+	envAuthPath        = "VKS_AUTH_PATH"
+	envKvPath          = "VKS_KV_PATH"
+	envVaultRole       = "VKS_VAULT_ROLE"
+	envIsSidecar       = "VKS_IS_SIDECAR"
 	envSecretsDestPath = "VKS_SECRET_DEST_PATH"
 )
 
@@ -45,19 +45,23 @@ var FetchCmd = &cobra.Command{
 	Long:  " Fetch vault secrets to file",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := log.New(os.Stdout, "vs", log.LstdFlags)
+		fetcher := secrets.New(vault.ClientOptions{
+			Server: viper.GetString(envVaultAddr),
+			Logger: logger,
+		})
+		role, authMount, kvMount := viper.GetString(envVaultRole), viper.GetString(envAuthPath), viper.GetString(envKvPath)
 
-		if (viper.GetBool(envIsSidecar)) {
-			runner := renewer.New(
-				viper.GetString(envVaultAddr),
-				viper.GetString(envSecretsDestPath) + "/vault_token",
-			)
-			runner.Run()
+		if viper.GetBool(envIsSidecar) {
+			if err := fetcher.FetchToken(role, authMount); err != nil {
+				log.Fatalf("Unable to fetch Vault token. error: %s", err.Error())
+			} else {
+				runner := renewer.New(
+					viper.GetString(envVaultAddr),
+					viper.GetString(envSecretsDestPath)+"/vault_token",
+				)
+				runner.Run()
+			}
 		} else {
-			fetcher := secrets.New(vault.ClientOptions{
-				Server: viper.GetString(envVaultAddr),
-				Logger: logger,
-			})
-			role, authMount, kvMount := viper.GetString(envVaultRole), viper.GetString(envAuthPath), viper.GetString(envKvPath)
 			if err, secretsFetched := fetcher.FetchSecrets(role, authMount, kvMount); err != nil {
 				log.Fatalf("Unable to fetch secrets. error: %s", err.Error())
 			} else {

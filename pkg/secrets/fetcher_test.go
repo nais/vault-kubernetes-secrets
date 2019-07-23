@@ -24,6 +24,18 @@ func newFetchSecretsStub(expectedSecrets map[string]string) SecretFetcher {
 		kv:           kv,
 	}
 }
+
+func TestFetchToken(t *testing.T) {
+	s := newFetchSecretsStub(make(map[string]string, 0))
+
+	e := s.FetchToken("role", "kubernetes")
+	st.Assert(t, e, nil)
+
+	token, err := afero.ReadFile(fs, "/secrets/vault_token")
+	st.Assert(t, err, nil)
+	st.Assert(t, string(token), "accessToken")
+
+}
 func TestFetchSecrets(t *testing.T) {
 	tests := []struct {
 		testName string
